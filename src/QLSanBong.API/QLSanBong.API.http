@@ -1,0 +1,6 @@
+@QLSanBong.API_HostAddress = http://localhost:5124
+
+GET {{QLSanBong.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,291 @@
+﻿@model IEnumerable<QLSanBong.MVC.Models.PitchViewModel>
+@{
+
+    ViewData["Title"] = "Hệ Thống Đặt Sân Bóng Mini DNhat";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        /* CSS cho Hero Banner */
+        .hero-section {
+            background: linear-gradient(rgba(0, 43, 20, 0.7), rgba(0, 0, 0, 0.8)), url('https://images.unsplash.com/photo-1518605368461-1ee7c532066d?q=80&w=1920&auto=format&fit=crop') center/cover;
+            padding: 100px 0 120px;
+            border-radius: 1.5rem;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hiệu ứng nổi thẻ dịch vụ */
+        .service-card {
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border-top: 4px solid transparent;
+        }
+
+            .service-card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+            }
+
+            /* Cụ thể màu border top khi hover cho từng dịch vụ */
+            .service-card.s-pitch:hover {
+                border-top-color: #198754;
+            }
+
+            .service-card.s-canteen:hover {
+                border-top-color: #ffc107;
+            }
+
+            .service-card.s-event:hover {
+                border-top-color: #0d6efd;
+            }
+
+        /* Icon trong service card */
+        .service-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover .service-icon-wrapper {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Hiệu ứng thẻ sân bóng */
+        .pitch-card {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+            .pitch-card .card-img-wrapper {
+                overflow: hidden;
+            }
+
+            .pitch-card .card-img-top {
+                transition: transform 0.5s ease;
+            }
+
+            .pitch-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 12px 24px rgba(0,0,0,0.12) !important;
+            }
+
+                .pitch-card:hover .card-img-top {
+                    transform: scale(1.08); /* Phóng to ảnh nhẹ khi hover */
+                }
+
+        /* Box tìm kiếm đè lên banner */
+        .search-box {
+            margin-top: -60px;
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+}
+
+<div class="container-fluid px-xl-5">
+    <div class="hero-section text-center shadow-lg">
+        <div class="container">
+            <span class="badge bg-success bg-opacity-75 text-white rounded-pill px-3 py-2 mb-3 text-uppercase letter-spacing-1">DNhat - Mini Soccer</span>
+            <h1 class="display-3 fw-bold text-white mb-3 text-uppercase" style="letter-spacing: -1px;">Hệ Thống Đặt Sân Thể Thao</h1>
+            <p class="lead text-white-50 mb-5 mx-auto" style="max-width: 700px;">
+                Trải nghiệm mặt cỏ chuẩn FIFA. Tìm sân trống, đặt lịch và thanh toán dịch vụ chỉ trong vài thao tác đơn giản.
+            </p>
+            <a href="@Url.Action("Index", "Pitch")" class="btn btn-success btn-lg rounded-pill px-5 py-3 fw-bold shadow-sm d-inline-flex align-items-center gap-2 hover-elevate">
+                <i class="bi bi-calendar-check fs-5"></i> ĐẶT SÂN NGAY
+            </a>
+        </div>
+    </div>
+
+    <div class="container search-box">
+        <div class="card shadow-lg border-0 rounded-4 mx-auto" style="max-width: 950px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+            <div class="card-body p-4 p-md-5">
+                <form action="@Url.Action("Search", "Pitch")" method="get" class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-dark mb-2"><i class="bi bi-calendar3 text-primary me-2"></i>Ngày đặt sân</label>
+                        <input type="text" name="date" id="searchDate" class="form-control form-control-lg border-secondary border-opacity-25" placeholder="Chọn ngày..." required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold text-dark mb-2"><i class="bi bi-bounding-box text-success me-2"></i>Loại sân</label>
+                        <select name="type" class="form-select form-control-lg border-secondary border-opacity-25 cursor-pointer">
+                            <option value="">-- Tất cả các sân --</option>
+                            <option value="5">Sân 5 người</option>
+                            <option value="7">Sân 7 người</option>
+                            <option value="11">Sân 11 người</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-2">
+                            <i class="bi bi-search"></i> TÌM SÂN TRỐNG
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5 pt-4">
+        <div class="row text-center bg-white py-5 rounded-4 shadow-sm border border-light">
+            <div class="col-md-4 position-relative">
+                <h2 class="display-4 fw-bold text-success mb-1">15+</h2>
+                <p class="text-muted text-uppercase fw-bold mb-0 letter-spacing-1">Sân Cỏ Đạt Chuẩn</p>
+                <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y" style="width: 2px; height: 60px; background-color: #dee2e6;"></div>
+            </div>
+            <div class="col-md-4 position-relative mt-4 mt-md-0">
+                <h2 class="display-4 fw-bold text-primary mb-1">500+</h2>
+                <p class="text-muted text-uppercase fw-bold mb-0 letter-spacing-1">Trận Đấu Mỗi Tháng</p>
+                <div class="d-none d-md-block position-absolute top-50 end-0 translate-middle-y" style="width: 2px; height: 60px; background-color: #dee2e6;"></div>
+            </div>
+            <div class="col-md-4 mt-4 mt-md-0">
+                <h2 class="display-4 fw-bold text-warning mb-1">2k+</h2>
+                <p class="text-muted text-uppercase fw-bold mb-0 letter-spacing-1">Khách Hàng Hài Lòng</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5 pt-5">
+        <div class="text-center mb-5">
+            <span class="text-primary fw-bold text-uppercase tracking-wide small">Khám Phá</span>
+            <h2 class="fw-bold mb-0 text-dark">DỊCH VỤ CỦA CHÚNG TÔI</h2>
+            <div class="mx-auto mt-3" style="width: 60px; height: 4px; background-color: #198754; border-radius: 2px;"></div>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm service-card s-pitch rounded-4 bg-white">
+                    <div class="card-body text-center p-5">
+                        <div class="service-icon-wrapper bg-success bg-opacity-10">
+                            <i class="bi bi-dribbble text-success fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3 text-dark">Hệ Thống Sân Cỏ</h4>
+                        <p class="text-muted mb-0">Hệ thống sân 5, 7, 11 người. Mặt cỏ thế hệ mới, cao su êm ái, hệ thống đèn LED chiếu sáng chuẩn.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm service-card s-canteen rounded-4 bg-white">
+                    <div class="card-body text-center p-5">
+                        <div class="service-icon-wrapper bg-warning bg-opacity-10">
+                            <i class="bi bi-cup-straw text-warning fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3 text-dark">Canteen & Phụ Kiện</h4>
+                        <p class="text-muted mb-0">Phục vụ nước giải khát lạnh, thức ăn nhẹ. Cho thuê áo bib, bóng thi đấu và găng tay thủ môn.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm service-card s-event rounded-4 bg-white">
+                    <div class="card-body text-center p-5">
+                        <div class="service-icon-wrapper bg-primary bg-opacity-10">
+                            <i class="bi bi-trophy text-primary fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3 text-dark">Tổ Chức Giải Đấu</h4>
+                        <p class="text-muted mb-0">Hỗ trợ trọn gói tổ chức giải bóng đá phong trào: Trọng tài, cúp vô địch, cờ lưu niệm và MC.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5 pt-5 pb-5">
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <span class="text-success fw-bold text-uppercase tracking-wide small">Lựa chọn hàng đầu</span>
+                <h2 class="fw-bold mb-0 text-dark">SÂN BÓNG NỔI BẬT</h2>
+            </div>
+            <a href="@Url.Action("Index", "Pitch")" class="btn btn-outline-dark rounded-pill fw-bold px-4 d-none d-sm-inline-flex">
+                Xem tất cả <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var pitch in Model)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm border-0 rounded-4 pitch-card bg-white">
+                            <div class="card-img-wrapper rounded-top-4">
+                                <img src="@(string.IsNullOrEmpty(pitch.ImageUrl) ? "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=600&auto=format&fit=crop" : pitch.ImageUrl)" class="card-img-top" alt="@pitch.Name" style="height: 240px; object-fit: cover;">
+                            </div>
+
+                            <div class="card-body d-flex flex-column p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h5 class="card-title fw-bold text-dark mb-0 fs-4">@pitch.Name</h5>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-bold">Sân @pitch.PitchType</span>
+                                </div>
+
+                                <div class="d-flex align-items-center mb-4">
+                                    <i class="bi bi-tag-fill text-success me-2"></i>
+                                    <h5 class="fw-bold text-success mb-0">@pitch.PricePerHour.ToString("N0") đ<small class="text-muted fw-normal fs-6">/giờ</small></h5>
+                                </div>
+
+                                <div class="mt-auto">
+                                    <a href="@Url.Action("Book", "Pitch", new { pitchId = pitch.Id })" class="btn btn-success w-100 fw-bold py-2 rounded-3 shadow-sm d-flex justify-content-center align-items-center gap-2">
+                                        <i class="bi bi-calendar-plus"></i> Đặt Lịch Ngay
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="alert alert-light border shadow-sm rounded-4 text-center py-5" role="alert">
+                        <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="fw-bold mt-3 text-dark">Chưa có dữ liệu sân bóng</h5>
+                        <p class="text-muted mb-0">Hiện tại hệ thống đang cập nhật các sân bóng mới. Vui lòng quay lại sau!</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-center mt-4 d-block d-sm-none">
+            <a href="@Url.Action("Index", "Pitch")" class="btn btn-outline-dark rounded-pill fw-bold w-100">
+                Xem tất cả sân bóng <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Khởi tạo Flatpickr
+            flatpickr("#searchDate", {
+                locale: "vn",
+                dateFormat: "d/m/Y",
+                minDate: "today",
+                maxDate: new Date().fp_incr(60), // Set 60 ngày cho thực tế
+                disableMobile: "true",
+                allowInput: true,
+                placeholder: "Chọn ngày đá bóng..."
+            });
+
+            // 2. Validate Custom Tiếng Việt
+            const searchDate = document.getElementById('searchDate');
+            searchDate.addEventListener('invalid', function () {
+                if (this.validity.valueMissing) {
+                    this.setCustomValidity('Vui lòng chọn ngày bạn muốn đặt sân!');
+                }
+            });
+
+            searchDate.addEventListener('input', function () {
+                this.setCustomValidity('');
+            });
+        });
+    </script>
+}

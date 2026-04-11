@@ -1,0 +1,75 @@
+@model QLSanBong.MVC.Models.CreatePitchViewModel
+
+@{
+    ViewData["Title"] = "Thêm Sân Bóng Mới";
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="d-flex align-items-center mb-4">
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-circle me-3 shadow-sm" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h3 class="text-dark fw-bold mb-0">Thêm Sân Bóng</h3>
+                    <p class="text-muted mb-0 small">Khai báo thông số kỹ thuật sân mới</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-gradient-success text-white py-3 border-0" style="background: linear-gradient(135deg, #198754 0%, #146c43 100%);">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-map me-2"></i>Chi Tiết Sân</h5>
+                </div>
+                <div class="card-body p-4 p-md-5 bg-white">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger fw-bold rounded-3 shadow-sm"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label fw-bold text-secondary">Tên Sân Bóng <span class="text-danger">*</span></label>
+                            <input asp-for="Name" class="form-control form-control-lg bg-light border-0" placeholder="VD: Sân cỏ nhân tạo số 1" required />
+                            <span asp-validation-for="Name" class="text-danger small fw-bold"></span>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                <label asp-for="PitchType" class="form-label fw-bold text-secondary">Quy Mô Sân <span class="text-danger">*</span></label>
+                                <select asp-for="PitchType" class="form-select form-select-lg bg-light border-0 cursor-pointer" required>
+                                    <option value="">-- Chọn quy mô --</option>
+                                    <option value="Sân 5">Sân 5 người</option>
+                                    <option value="Sân 7">Sân 7 người</option>
+                                    <option value="Sân 11">Sân 11 người</option>
+                                </select>
+                                <span asp-validation-for="PitchType" class="text-danger small fw-bold"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="PricePerHour" class="form-label fw-bold text-secondary">Giá Thuê (VNĐ/Giờ) <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                                    <span class="input-group-text bg-white border-0 text-success"><i class="bi bi-cash"></i></span>
+                                    <input asp-for="PricePerHour" type="number" class="form-control bg-light border-0" placeholder="250000" required />
+                                </div>
+                                <span asp-validation-for="PricePerHour" class="text-danger small fw-bold"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <label asp-for="ImageUrl" class="form-label fw-bold text-secondary">Đường Dẫn Ảnh (URL)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-link-45deg"></i></span>
+                                <input asp-for="ImageUrl" class="form-control bg-light border-0" placeholder="https://..." />
+                            </div>
+                            <div class="form-text mt-2 text-muted fst-italic">Bỏ trống để dùng hình ảnh sân cỏ mặc định của hệ thống.</div>
+                        </div>
+
+                        <div class="d-flex flex-column flex-sm-row gap-3">
+                            <button type="submit" class="btn btn-success btn-lg fw-bold flex-grow-1 rounded-pill shadow-sm py-3">
+                                <i class="bi bi-save me-2"></i> LƯU DỮ LIỆU
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

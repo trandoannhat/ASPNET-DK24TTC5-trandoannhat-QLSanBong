@@ -1,0 +1,119 @@
+﻿@model IEnumerable<QLSanBong.Application.DTOs.Service.ServiceDto>
+@using QLSanBong.Domain.Enums
+
+@{
+    ViewData["Title"] = "Quản Lý Canteen & Dịch Vụ";
+}
+
+@section Styles {
+    <style>
+        .table-row-hover {
+            transition: all 0.2s ease-in-out;
+        }
+
+            .table-row-hover:hover {
+                transform: scale(1.01);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+                background-color: #fff !important;
+                z-index: 10;
+                position: relative;
+            }
+    </style>
+}
+
+<div class="container-fluid mt-4 mb-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+        <h2 class="fw-bold text-uppercase mb-0 text-dark">
+            <span class="bg-warning bg-opacity-10 text-warning p-2 rounded-3 me-2">
+                <i class="bi bi-cup-straw"></i>
+            </span>
+            Quản Lý Canteen
+        </h2>
+        <a asp-action="Create" class="btn btn-success fw-bold shadow-sm rounded-pill px-4 py-2">
+            <i class="bi bi-plus-circle me-1"></i> Thêm Mặt Hàng Mới
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2 fs-5 align-middle"></i>
+            <span class="align-middle fw-medium">@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-0 table-responsive">
+            <table class="table align-middle mb-0" style="border-collapse: separate; border-spacing: 0;">
+                <thead class="table-light">
+                    <tr>
+                        <th class="py-3 ps-4 text-uppercase text-muted fw-bold small border-bottom-0">Tên Mặt Hàng</th>
+                        <th class="py-3 text-uppercase text-muted fw-bold small border-bottom-0">Phân Loại</th>
+                        <th class="py-3 text-uppercase text-muted fw-bold small border-bottom-0">Đơn Vị Tính</th>
+                        <th class="py-3 text-end text-uppercase text-muted fw-bold small border-bottom-0">Đơn Giá</th>
+                        <th class="py-3 text-center pe-4 text-uppercase text-muted fw-bold small border-bottom-0">Thao Tác</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr class="table-row-hover border-bottom">
+                                <td class="ps-4 py-3 fw-bold text-dark fs-6">@item.Name</td>
+                                <td class="py-3">
+                                    @if (item.Category == ServiceCategory.Beverage)
+                                    {
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-cup-hot me-1"></i> Nước Uống</span>
+                                    }
+                                    else if (item.Category == ServiceCategory.Food)
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-egg-fried me-1"></i> Đồ Ăn</span>
+                                    }
+                                    else if (item.Category == ServiceCategory.Equipment)
+                                    {
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-3 py-2 rounded-pill"><i class="bi bi-dribbble me-1"></i> Thiết Bị</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">Khác</span>
+                                    }
+                                </td>
+                                <td class="py-3">
+                                    <span class="badge bg-light text-secondary border px-2 py-1">@item.Unit</span>
+                                </td>
+                                <td class="text-end fw-bold text-danger py-3 fs-6">
+                                    @item.Price.ToString("N0") <small class="text-muted fw-normal">đ</small>
+                                </td>
+                                <td class="text-center pe-4 py-3">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold shadow-sm" title="Sửa">
+                                            <i class="bi bi-pencil me-1"></i> Sửa
+                                        </a>
+                                        <form asp-action="Delete" method="post" class="m-0" onsubmit="return confirm('Bạn có chắc chắn muốn xóa mặt hàng này? Hành động này không thể hoàn tác.');">
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold shadow-sm" title="Xóa">
+                                                <i class="bi bi-trash3 me-1"></i> Xóa
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <i class="bi bi-basket3 text-muted opacity-50" style="font-size: 4rem;"></i>
+                                <h5 class="fw-bold mt-3 text-dark">Canteen Đang Trống</h5>
+                                <p class="text-muted mb-0">Chưa có mặt hàng nào được cấu hình trong hệ thống.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

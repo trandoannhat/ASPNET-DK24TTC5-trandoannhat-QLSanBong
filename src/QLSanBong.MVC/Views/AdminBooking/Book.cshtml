@@ -1,0 +1,92 @@
+﻿@model QLSanBong.MVC.Models.AdminBookPitchViewModel
+@using QLSanBong.Domain.Enums
+@{
+    ViewData["Title"] = "Admin Đặt Lịch";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-plus"></i> ĐẶT LỊCH HỘ KHÁCH - @Model.PitchName.ToUpper()</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Book" asp-controller="AdminBooking" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <input type="hidden" asp-for="PitchId" />
+                        <input type="hidden" asp-for="PitchName" />
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="CustomerName" class="form-label fw-bold">Tên Khách Hàng</label>
+                                <input asp-for="CustomerName" class="form-control" placeholder="Tên khách vãng lai..." required />
+                                <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="CustomerPhone" class="form-label fw-bold">Số Điện Thoại</label>
+                                <input asp-for="CustomerPhone" class="form-control" placeholder="09xxxxxxxx" required />
+                                <span asp-validation-for="CustomerPhone" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="BookingDate" class="form-label fw-bold">Ngày Đặt Sân</label>
+                            <input asp-for="BookingDate" type="text" id="adminBookingDate" class="form-control bg-white" placeholder="Ngày/Tháng/Năm" value='@Model.BookingDate.ToString("yyyy-MM-dd")' required />
+                            <span asp-validation-for="BookingDate" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="StartTime" class="form-label fw-bold">Giờ Bắt Đầu</label>
+                                <input asp-for="StartTime" type="time" class="form-control" required />
+                                <span asp-validation-for="StartTime" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="EndTime" class="form-label fw-bold">Giờ Kết Thúc</label>
+                                <input asp-for="EndTime" type="time" class="form-control" required />
+                                <span asp-validation-for="EndTime" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label fw-bold">Trạng Thái Ban Đầu</label>
+                            <select asp-for="Status" asp-items="Html.GetEnumSelectList<BookingStatus>()" class="form-select"></select>
+                            <small class="text-muted fst-italic">Thường chọn "Đã duyệt" cho khách đặt trực tiếp tại sân.</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Notes" class="form-label fw-bold text-secondary">Ghi chú thêm (Tùy chọn)</label>
+                            <textarea asp-for="Notes" class="form-control border-0 shadow-sm" rows="3" placeholder="Yêu cầu trọng tài, lấy thêm nước..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary fw-bold px-4"><i class="bi bi-save me-2"></i> Xác Nhận Đặt Lịch</button>
+                            <a asp-action="Index" asp-controller="AdminBooking" class="btn btn-outline-secondary px-4">Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            flatpickr("#adminBookingDate", {
+                locale: "vn",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "d/m/Y",
+                minDate: "today",
+                defaultDate: "@Model.BookingDate.ToString("yyyy-MM-dd")"
+            });
+        });
+    </script>
+}

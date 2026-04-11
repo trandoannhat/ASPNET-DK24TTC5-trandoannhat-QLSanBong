@@ -1,0 +1,263 @@
+﻿@model QLSanBong.Application.DTOs.Pitch.PitchBookingDetailDto
+
+@{
+    ViewData["Title"] = "Chi Tiết Hóa Đơn";
+    var services = ViewBag.AvailableServices as IEnumerable<QLSanBong.Application.DTOs.Service.ServiceDto>;
+}
+
+@section Styles {
+    <style>
+        .invoice-card {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border-radius: 15px;
+            background: #fff;
+            position: relative;
+        }
+            /* Hiệu ứng viền răng cưa giống biên lai thực tế */
+            .invoice-card::before {
+                content: "";
+                position: absolute;
+                top: -10px;
+                left: 0;
+                width: 100%;
+                height: 10px;
+                background-image: radial-gradient(circle, #fff 50%, transparent 50%);
+                background-size: 20px 20px;
+            }
+
+        /* Cấu hình hiển thị khi in Bill */
+        @@media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .invoice-card, .invoice-card * {
+                visibility: visible;
+            }
+
+            .invoice-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+                .invoice-card::before {
+                    display: none;
+                }
+
+            .d-print-none, .btn, form {
+                display: none !important;
+            }
+            /* Thêm header riêng khi in */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+                .print-header h2 {
+                    font-weight: bold;
+                    font-size: 24pt;
+                    margin-bottom: 5px;
+                }
+
+                .print-header p {
+                    font-size: 12pt;
+                    color: #555;
+                }
+        }
+
+        .print-header {
+            display: none;
+        }
+        /* Ẩn trên giao diện web bình thường */
+    </style>
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+
+            <div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+                <a asp-action="Index" class="btn btn-light bg-white border fw-bold shadow-sm rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Quay lại
+                </a>
+
+                @if (Model.Status.Contains("1") || Model.Status.Contains("Approved") || Model.Status.Contains("Duyệt"))
+                {
+                    <button class="btn btn-warning fw-bold text-dark shadow-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addServiceModal">
+                        <i class="bi bi-cart-plus me-1"></i> Gọi Thêm Nước/Bóng
+                    </button>
+                }
+            </div>
+
+            <div class="card invoice-card p-2 p-md-5">
+
+                <div class="print-header">
+                    <h2>DNHAT MINI SOCCER</h2>
+                    <p>Sân Cỏ Nhân Tạo Chất Lượng Cao<br>Hotline/Zalo: 0907011886</p>
+                    <hr style="border-top: 2px dashed #000;">
+                    <h3 style="margin-top: 20px; font-weight: bold;">HÓA ĐƠN THANH TOÁN</h3>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="text-center mb-5 d-print-none">
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3 py-2 mb-3">DNHAT MINI SOCCER</span>
+                        <h2 class="fw-bold text-uppercase">Hóa Đơn Dịch Vụ</h2>
+                        <p class="text-muted mb-0">Mã Đơn: #@Model.Id.ToString().Substring(0, 8).ToUpper()</p>
+                    </div>
+
+                    <div class="row mb-5 g-4">
+                        <div class="col-6">
+                            <h6 class="fw-bold text-muted text-uppercase small mb-3">Khách Hàng</h6>
+                            <h5 class="fw-bold text-dark mb-1">@Model.CustomerName</h5>
+                            <p class="mb-0 text-muted"><i class="bi bi-telephone-fill small me-2"></i>@Model.CustomerPhone</p>
+                        </div>
+                        <div class="col-6 text-end">
+                            <h6 class="fw-bold text-muted text-uppercase small mb-3">Chi Tiết Ca Đá</h6>
+                            <h5 class="fw-bold text-success mb-1">@Model.PitchName</h5>
+                            <p class="mb-1 text-dark fw-medium">@Model.BookingDate.ToString("dd/MM/yyyy")</p>
+                            <p class="mb-0 badge bg-dark px-2 py-1 fs-6">@Model.StartTime.ToString(@"hh\:mm") - @Model.EndTime.ToString(@"hh\:mm")</p>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive mb-4 border rounded-3 overflow-hidden">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead class="bg-light border-bottom">
+                                <tr>
+                                    <th class="py-3 ps-4 text-muted text-uppercase small fw-bold">Mô tả</th>
+                                    <th class="py-3 text-center text-muted text-uppercase small fw-bold" style="width: 15%;">SL</th>
+                                    <th class="py-3 text-end text-muted text-uppercase small fw-bold" style="width: 20%;">Đơn giá</th>
+                                    <th class="py-3 text-end pe-4 text-muted text-uppercase small fw-bold" style="width: 25%;">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-bottom border-light">
+                                    <td class="ps-4 py-3">
+                                        <span class="fw-bold text-dark d-block">Tiền Thuê Sân Bóng</span>
+                                    </td>
+                                    <td class="text-center fw-bold py-3">1</td>
+                                    <td class="text-end py-3">@((Model.TotalPrice - Model.PurchasedServices.Sum(s => s.TotalAmount)).ToString("N0")) đ</td>
+                                    <td class="text-end pe-4 fw-bold text-dark py-3">@((Model.TotalPrice - Model.PurchasedServices.Sum(s => s.TotalAmount)).ToString("N0")) đ</td>
+                                </tr>
+
+                                @if (Model.PurchasedServices.Any())
+                                {
+                                    foreach (var item in Model.PurchasedServices)
+                                    {
+                                        <tr class="border-bottom border-light">
+                                            <td class="ps-4 py-3 text-secondary">
+                                                <i class="bi bi-box-seam me-2 small opacity-50"></i>@item.ServiceName
+                                            </td>
+                                            <td class="text-center py-3 text-secondary">@item.Quantity</td>
+                                            <td class="text-end py-3 text-secondary">@item.UnitPrice.ToString("N0") đ</td>
+                                            <td class="text-end pe-4 fw-bold text-secondary py-3">@item.TotalAmount.ToString("N0") đ</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row justify-content-end mb-4">
+                        <div class="col-sm-6 col-md-5">
+                            <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-3">
+                                <span class="fw-bold text-uppercase text-muted">Tổng Phải Thu:</span>
+                                <span class="fw-bold fs-3 text-danger">@Model.TotalPrice.ToString("N0") <small class="fs-6">đ</small></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-5 pt-4 border-top d-print-none">
+                        <button onclick="window.print()" class="btn btn-outline-dark btn-lg fw-bold shadow-sm rounded-pill px-4 py-3 me-3">
+                            <i class="bi bi-printer me-2"></i> IN HÓA ĐƠN
+                        </button>
+
+                        @if (Model.Status.Contains("1") || Model.Status.Contains("Approved") || Model.Status.Contains("Duyệt"))
+                        {
+                            <form asp-action="UpdateStatus" method="post" class="d-inline-block" id="checkoutForm">
+                                <input type="hidden" name="bookingId" value="@Model.Id" />
+                                <input type="hidden" name="statusId" value="3" />
+                                <button type="button" onclick="confirmCheckout()" class="btn btn-success btn-lg fw-bold shadow border-0 rounded-pill px-5 py-3 text-white">
+                                    <i class="bi bi-cash-coin me-2 fs-5 align-middle"></i> XÁC NHẬN ĐÃ THU TIỀN
+                                </button>
+                            </form>
+                        }
+                    </div>
+
+                    <div class="print-header mt-5 pt-4 text-center">
+                        <p style="font-style: italic;">Cảm ơn quý khách đã sử dụng dịch vụ.<br>Hẹn gặp lại!</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addServiceModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-warning py-3 border-0">
+                <h5 class="modal-title fw-bold text-dark"><i class="bi bi-basket2-fill me-2"></i>Order Thêm Dịch Vụ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="AddService" method="post">
+                <div class="modal-body p-4 bg-light">
+                    <input type="hidden" name="bookingId" value="@Model.Id" />
+
+                    <div class="card border-0 shadow-sm rounded-3 p-3 mb-3">
+                        <label class="form-label fw-bold text-secondary mb-2">Chọn Mặt Hàng</label>
+                        <select name="serviceId" class="form-select form-select-lg bg-light border-0 cursor-pointer" required>
+                            <option value="">-- Click để chọn Nước/Bóng --</option>
+                            @if (services != null)
+                            {
+                                foreach (var s in services)
+                                {
+                                    <option value="@s.Id">@s.Name (@s.Price.ToString("N0")đ / @s.Unit)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="card border-0 shadow-sm rounded-3 p-3">
+                        <label class="form-label fw-bold text-secondary mb-2">Số lượng</label>
+                        <div class="input-group input-group-lg">
+                            <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-123"></i></span>
+                            <input type="number" name="quantity" class="form-control bg-light border-0 text-center fw-bold fs-5" value="1" min="1" max="50" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-0 p-3 d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-light fw-bold rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-warning text-dark fw-bold rounded-pill px-5 shadow-sm"><i class="bi bi-plus-lg me-1"></i> Xác nhận thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmCheckout() {
+            Swal.fire({
+                title: 'Xác nhận thu tiền?',
+                text: 'Hóa đơn sẽ được chốt và ghi nhận vào doanh thu. Không thể hoàn tác.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="bi bi-check2-circle"></i> Đã thu tiền',
+                cancelButtonText: 'Quay lại',
+                shape: 'pill'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('checkoutForm').submit();
+                }
+            })
+        }
+    </script>
+}
