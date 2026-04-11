@@ -48,7 +48,7 @@ public static class DataSeeder
                 FullName = "Normal Client",
                 Email = "client", // Sử dụng trường Email làm tên đăng nhập
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("client123@A"),
-                Role = UserRole.Client,
+                Role = UserRole.Customer,
                 CreatedAt = DateTime.UtcNow,
                 IsDeleted = false
             };

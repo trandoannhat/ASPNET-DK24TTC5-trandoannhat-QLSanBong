@@ -4,24 +4,22 @@ namespace QLSanBong.Domain.Interfaces;
 
 public interface IUnitOfWork : IDisposable
 {
-   
+    // --- System ---
     IGenericRepository<User> Users { get; }
-    
-    
 
-    //===========sân bóng=========
+    // --- Pitch Management ---
     IGenericRepository<Pitch> Pitches { get; }
     IGenericRepository<PitchBooking> PitchBookings { get; }
-    
-    // --- dịch vụ và tính tiền ---
-    IGenericRepository<Service> Services { get; }
-    IGenericRepository<BookingService> BookingServices { get; }
     IGenericRepository<PitchMaintenance> PitchMaintenances { get; }
 
-    // Sau này thêm các repo khác nếu phát sinh 
-    Task<int> CompleteAsync(); // SaveChanges
+    // --- Services & Invoices ---
+    IGenericRepository<Service> Services { get; }
+    IGenericRepository<BookingService> BookingServices { get; }
 
-    // --- Quản lý Transaction ---
+    // --- DbContext Actions ---
+    Task<int> CompleteAsync();
+
+    // --- Transaction Management ---
     Task BeginTransactionAsync();
     Task CommitTransactionAsync();
     Task RollbackTransactionAsync();

@@ -2,18 +2,17 @@
 
 namespace QLSanBong.Domain.Entities;
 
-//  Bảng trung gian lưu chi tiết hóa đơn (Booking <-> Service)
+// Lưu thông tin chi tiết các dịch vụ sử dụng trong 1 lần đặt sân
 public class BookingService : BaseEntity
 {
     public Guid BookingId { get; set; }
-    public PitchBooking Booking { get; set; } // Navigation property
+    public PitchBooking Booking { get; set; }
 
     public Guid ServiceId { get; set; }
-    public Service Service { get; set; } // Navigation property
+    public Service Service { get; set; }
 
     public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; } // Lưu lại giá tại thời điểm bán (đề phòng giá gốc thay đổi)
+    public decimal UnitPrice { get; set; } // Giá tại thời điểm bán
 
-    // Tính tiền = Quantity * UnitPrice
     public decimal TotalAmount => Quantity * UnitPrice;
 }

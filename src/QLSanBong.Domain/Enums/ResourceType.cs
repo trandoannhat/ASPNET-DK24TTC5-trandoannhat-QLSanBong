@@ -2,6 +2,7 @@
 
 public enum ResourceType
 {
-    Staff = 0,      // Nhân sự (Kỹ thuật viên Spa, Bác sĩ...)
-    Facility = 1    // Cơ sở vật chất (Sân bóng, Phòng VIP...)
+    Pitch = 0,      // Sân bóng (Sân 5, sân 7)
+    Staff = 1,      // Nhân sự (Trọng tài, nhân viên trực sân)
+    Service = 2     // Tiện ích đi kèm (Phòng thay đồ, bãi xe...)
 }

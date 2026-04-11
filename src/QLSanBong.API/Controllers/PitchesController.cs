@@ -8,7 +8,7 @@ namespace QLSanBong.API.Controllers.Pitch;
 
 [Route("api/pitch/[controller]")]
 [ApiController]
-public class PitchesController(IPitchBookingService pitchBookingService) : ControllerBase
+public class PitchesController(IPitchBookingService pitchBookingService) : BaseApiController
 {
     [HttpGet("{id}")]
     [AllowAnonymous]
@@ -30,8 +30,9 @@ public class PitchesController(IPitchBookingService pitchBookingService) : Contr
     [Authorize(Roles = AppConstants.Roles.PitchManagers)]
     public async Task<IActionResult> UpdatePitch(Guid id, [FromBody] UpdatePitchDto request)
     {
-        if (id != request.Id) return BadRequest(new { Message = "ID sân bóng không khớp." });
-        
+        if (id != request.Id)
+            return Error("ID sân bóng không khớp với dữ liệu gửi lên.", "IdMismatch");
+
         var result = await pitchBookingService.UpdatePitchAsync(request);
         return result.Success ? Ok(result) : BadRequest(result);
     }

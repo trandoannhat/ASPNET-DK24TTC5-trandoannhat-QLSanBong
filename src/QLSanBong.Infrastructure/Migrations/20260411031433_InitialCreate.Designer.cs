@@ -12,8 +12,8 @@ using QLSanBong.Infrastructure.Data;
 namespace QLSanBong.Infrastructure.Migrations
 {
     [DbContext(typeof(QLSanBongDbContext))]
-    [Migration("20260319064959_addimagePitch")]
-    partial class addimagePitch
+    [Migration("20260411031433_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,33 @@ namespace QLSanBong.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("QLSanBong.Domain.Entities.BookingService", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("BookingServices");
+                });
 
             modelBuilder.Entity("QLSanBong.Domain.Entities.Pitch", b =>
                 {
@@ -117,6 +144,63 @@ namespace QLSanBong.Infrastructure.Migrations
                     b.ToTable("PitchBookings");
                 });
 
+            modelBuilder.Entity("QLSanBong.Domain.Entities.PitchMaintenance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("EstimatedCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("PitchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PitchId");
+
+                    b.ToTable("PitchMaintenances");
+                });
+
+            modelBuilder.Entity("QLSanBong.Domain.Entities.Service", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Services");
+                });
+
             modelBuilder.Entity("QLSanBong.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -166,6 +250,25 @@ namespace QLSanBong.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("QLSanBong.Domain.Entities.BookingService", b =>
+                {
+                    b.HasOne("QLSanBong.Domain.Entities.PitchBooking", "Booking")
+                        .WithMany("BookingServices")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("QLSanBong.Domain.Entities.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Service");
+                });
+
             modelBuilder.Entity("QLSanBong.Domain.Entities.PitchBooking", b =>
                 {
                     b.HasOne("QLSanBong.Domain.Entities.Pitch", "Pitch")
@@ -175,7 +278,7 @@ namespace QLSanBong.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("QLSanBong.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("PitchBookings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -185,7 +288,28 @@ namespace QLSanBong.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("QLSanBong.Domain.Entities.PitchMaintenance", b =>
+                {
+                    b.HasOne("QLSanBong.Domain.Entities.Pitch", "Pitch")
+                        .WithMany()
+                        .HasForeignKey("PitchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Pitch");
+                });
+
             modelBuilder.Entity("QLSanBong.Domain.Entities.Pitch", b =>
+                {
+                    b.Navigation("PitchBookings");
+                });
+
+            modelBuilder.Entity("QLSanBong.Domain.Entities.PitchBooking", b =>
+                {
+                    b.Navigation("BookingServices");
+                });
+
+            modelBuilder.Entity("QLSanBong.Domain.Entities.User", b =>
                 {
                     b.Navigation("PitchBookings");
                 });

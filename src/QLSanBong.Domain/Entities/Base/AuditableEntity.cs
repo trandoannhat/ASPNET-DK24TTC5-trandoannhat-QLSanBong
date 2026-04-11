@@ -1,6 +1,6 @@
 ﻿using QLSanBong.Domain.Interfaces.Base;
 
-namespace QLSanBong.Domain.Entities.Base; 
+namespace QLSanBong.Domain.Entities.Base;
 
 public abstract class AuditableEntity : BaseEntity, IAuditable
 {

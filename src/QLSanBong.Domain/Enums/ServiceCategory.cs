@@ -2,19 +2,17 @@
 
 namespace QLSanBong.Domain.Enums;
 
-
-
 public enum ServiceCategory
 {
     [Display(Name = "Nước giải khát")]
-    Beverage = 1,//// Nước giải khát (Nước suối, Bò húc, Revive...)
+    Beverage = 1,   // Các loại nước uống, trà đá...
 
     [Display(Name = "Đồ ăn nhẹ")]
-    Food = 2,//// Đồ ăn nhẹ (Mì tôm trứng, xúc xích...)
+    Food = 2,       // Mì tôm, xúc xích, đồ ăn nhanh
 
-    [Display(Name = "Thiết bị (Bóng, Áo bib...)")]
-    Equipment = 3,//// Thuê trang thiết bị (Quả bóng, áo bib, giày đá phủi...)
+    [Display(Name = "Cho thuê đồ")]
+    Equipment = 3,  // Thuê giày, áo bib, quả bóng
 
     [Display(Name = "Dịch vụ khác")]
-    Other = 4// // Dịch vụ khác (Thuê trọng tài, thuê quay phát livestream...)
+    Other = 4       // Thuê trọng tài, quay phim, tổ chức giải
 }

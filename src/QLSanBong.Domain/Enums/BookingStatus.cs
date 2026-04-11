@@ -1,21 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
 
 namespace QLSanBong.Domain.Enums;
 
 public enum BookingStatus
 {
+    [Display(Name = "Chờ duyệt")]
+    Pending = 0,    // Khách mới đặt, chờ admin xác nhận
 
+    [Display(Name = "Đã xác nhận")]
+    Approved = 1,   // Đã chốt sân cho khách
 
-    [Display(Name = "Chờ Xác Nhận")]
-    Pending = 0,// Chờ xác nhận
+    [Display(Name = "Đã hủy")]
+    Cancelled = 2,  // Khách bùng hoặc sân có sự cố
 
-    [Display(Name = "Đã Duyệt (Thành công)")]
-    Approved = 1,// Đã xác nhận (đã xếp lịch)
-
-    [Display(Name = "Đã Hủy")]
-    Cancelled = 2,// Đã hủy
-
-    [Display(Name = "Đã Hoàn Thành")]
-    Completed = 3  // Đã hoàn thành (đã phục vụ xong)
+    [Display(Name = "Thành công")]
+    Completed = 3   // Khách đã đá xong và thanh toán
 }

@@ -3,24 +3,21 @@ using Microsoft.AspNetCore.Mvc;
 using QLSanBong.Application.DTOs.Pitch;
 using QLSanBong.Application.Interfaces;
 using QLSanBong.Common.Exceptions;
+using QLSanBong.Common.Wrappers;
 using System.Security.Claims;
 
 namespace QLSanBong.API.Controllers.Pitch;
 
-[Route("api/pitch/[controller]")]
+[Route("api/pitch/bookings")]
 [ApiController]
-public class BookingsController(IPitchBookingService pitchBookingService) : ControllerBase
+public class BookingsController(IPitchBookingService pitchBookingService) : BaseApiController
 {
-    // ==========================================
-    // KHU VỰC DÀNH CHO KHÁCH HÀNG
-    // ==========================================
-
     [HttpGet("pitches")]
     [AllowAnonymous]
     public async Task<IActionResult> GetAllPitches()
     {
         var result = await pitchBookingService.GetAllPitchesAsync();
-        return Ok(result);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     [HttpGet("available-pitches")]
@@ -38,7 +35,7 @@ public class BookingsController(IPitchBookingService pitchBookingService) : Cont
         var userIdString = User.FindFirstValue("id") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid currentUserId))
         {
-            return Unauthorized(new { Message = "Vui lòng đăng nhập để đặt sân." });
+            return Unauthorized(ApiResponse<string>.FailureResponse("Vui lòng đăng nhập để đặt sân.", "Unauthorized"));
         }
 
         var result = await pitchBookingService.CreateBookingAsync(request, currentUserId);
@@ -52,11 +49,11 @@ public class BookingsController(IPitchBookingService pitchBookingService) : Cont
         var userIdString = User.FindFirstValue("id") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out Guid currentUserId))
         {
-            return Unauthorized();
+            return Unauthorized(ApiResponse<string>.FailureResponse("Từ chối truy cập.", "Unauthorized"));
         }
 
         var result = await pitchBookingService.GetMyBookingsAsync(currentUserId);
-        return Ok(result);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     [HttpPut("my-bookings/{id}/cancel")]
@@ -65,7 +62,7 @@ public class BookingsController(IPitchBookingService pitchBookingService) : Cont
     {
         var userIdString = User.FindFirstValue("id") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdString, out Guid currentUserId))
-            return Unauthorized(new { Message = "Token không hợp lệ." });
+            return Unauthorized(ApiResponse<string>.FailureResponse("Token không hợp lệ.", "Unauthorized"));
 
         var result = await pitchBookingService.CancelMyBookingAsync(id, currentUserId);
         return result.Success ? Ok(result) : BadRequest(result);
@@ -77,22 +74,18 @@ public class BookingsController(IPitchBookingService pitchBookingService) : Cont
     {
         var userIdString = User.FindFirstValue("id") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdString, out Guid currentUserId))
-            return Unauthorized();
+            return Unauthorized(ApiResponse<string>.FailureResponse("Token không hợp lệ.", "Unauthorized"));
 
         var result = await pitchBookingService.RescheduleMyBookingAsync(id, currentUserId, newDate, newStartTime, newEndTime);
         return result.Success ? Ok(result) : BadRequest(result);
     }
-
-    // ==========================================
-    // KHU VỰC DÀNH CHO ADMIN VÀ QUẢN LÝ SÂN
-    // ==========================================
 
     [HttpGet("admin/all")]
     [Authorize(Roles = AppConstants.Roles.PitchManagers)]
     public async Task<IActionResult> GetAllBookings([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
     {
         var result = await pitchBookingService.GetAllBookingsAsync(fromDate, toDate);
-        return Ok(result);
+        return result.Success ? Ok(result) : BadRequest(result);
     }
 
     [HttpPut("admin/status")]

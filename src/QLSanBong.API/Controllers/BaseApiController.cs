@@ -7,20 +7,19 @@ namespace QLSanBong.API.Controllers;
 [Route("api/[controller]")]
 public abstract class BaseApiController : ControllerBase
 {
-    // 1. Trả về 200 OK
+    // 1. Trả về 200 OK (Thành công)
     protected IActionResult Success<T>(T data, string message = "Thành công", string action = "Operation")
-        => Ok(new ApiResponse<T>(data, message, action));
+        => Ok(ApiResponse<T>.SuccessResponse(data, message, action));
 
-    // 2. Trả về 400 Bad Request
+    // 2. Trả về 400 Bad Request (Lỗi)
     protected IActionResult Error(string message, string action = "Error")
-        => BadRequest(new ApiResponse<string>(message, action));
+        => BadRequest(ApiResponse<string>.FailureResponse(message, action));
 
-    // 3. Trả về 200 OK (Phân trang)
+    // 3. Trả về 200 OK (Có phân trang)
     protected IActionResult Paged<T>(T data, int page, int size, int total, string action = "Get List")
         => Ok(new PagedResponse<T>(data, page, size, total, action));
 
-    // --- MỚI THÊM: 4. Trả về 201 Created ---
-    // Cách dùng: return CreatedResource(data, "Tạo thành công");
+    // 4. Trả về 201 Created (Vừa tạo mới xong)
     protected IActionResult CreatedResource<T>(T data, string message = "Tạo mới thành công", string action = "Create")
-        => StatusCode(201, new ApiResponse<T>(data, message, action));
+        => StatusCode(201, ApiResponse<T>.SuccessResponse(data, message, action));
 }

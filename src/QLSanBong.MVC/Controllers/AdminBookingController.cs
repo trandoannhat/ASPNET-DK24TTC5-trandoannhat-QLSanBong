@@ -11,7 +11,7 @@ namespace QLSanBong.MVC.Controllers;
 [Authorize(Roles = "Admin,PitchAdmin")]
 public class AdminBookingController(
     IPitchBookingService pitchBookingService,
-    IServiceManagementService serviceManagement, // Khai báo Service Canteen
+    IServiceManagementService serviceManagement, 
     IMapper mapper) : Controller
 {
     // ==========================================
@@ -24,7 +24,7 @@ public class AdminBookingController(
         DateTime? fromDate = null;
         DateTime? toDate = null;
 
-        // 1. LOGIC TÌM KIẾM THÔNG MINH
+        // 1. LOGIC TÌM KIẾM 
         if (filterDate.HasValue)
         {
             // Kịch bản A: Có chọn ngày rõ ràng -> Chỉ tìm trong ngày đó
@@ -129,7 +129,8 @@ public class AdminBookingController(
             BookingDate = model.BookingDate,
             StartTime = TimeSpan.Parse(model.StartTime),
             EndTime = TimeSpan.Parse(model.EndTime),
-            Status = (int)model.Status, // Lưu ý: Ép kiểu nguyên (int) để gửi xuống Service
+           
+            Status = model.Status,
 
             Notes = model.Notes
         };
@@ -185,7 +186,7 @@ public class AdminBookingController(
         return RedirectToAction(nameof(Invoice), new { id = bookingId });
     }
     // ==========================================
-    // TÍNH NĂNG CALENDAR (LỊCH BIỂU TRỰC QUAN)
+    // TÍNH NĂNG CALENDAR (LỊCH BIỂU )
     // ==========================================
 
     // 1. Hàm trả về Giao diện trang Lịch
@@ -218,11 +219,11 @@ public class AdminBookingController(
                 end = $"{b.BookingDate:yyyy-MM-dd}T{b.EndTime}",
                 backgroundColor = GetColorByStatus(b.Status), // Lấy màu theo trạng thái
                 borderColor = GetColorByStatus(b.Status),
-                textColor = (b.Status == "0" || b.Status == "Pending" || b.Status == "Chờ Xác Nhận") ? "#000" : "#fff", // Chữ đen cho nền vàng, chữ trắng cho nền đậm
-                                                                                                                        // Tìm dòng description cũ và thay bằng dòng này:
+                textColor = (b.Status == "0" || b.Status == "Pending" || b.Status == "Chờ Xác Nhận") ? "#000" : "#fff", 
+                                                                                                                        
                 description = $"SĐT: {b.CustomerPhone} | Giá: {b.TotalPrice:N0}đ\n" +
                               $"Ghi chú: {(string.IsNullOrEmpty(b.Notes) ? "Không có" : b.Notes)}"
-                // description = $"SĐT: {b.CustomerPhone} | Giá: {b.TotalPrice:N0}đ" // Dữ liệu ẩn để lát dùng cho Pop-up
+               
             });
 
         return Json(events);

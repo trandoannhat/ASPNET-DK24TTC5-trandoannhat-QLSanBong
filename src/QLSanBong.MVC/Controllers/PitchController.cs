@@ -1,11 +1,12 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using QLSanBong.Application.DTOs.Pitch;
 using QLSanBong.Application.Interfaces;
 using QLSanBong.Application.Services;
+using QLSanBong.Domain.Enums;
 using QLSanBong.MVC.Models;
+using System.Security.Claims;
 
 namespace QLSanBong.MVC.Controllers;
 
@@ -59,34 +60,7 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Book(BookPitchViewModel model)
     {
-        if (!TimeSpan.TryParse(model.StartTime, out var startTime))
-            ModelState.AddModelError("StartTime", "Giờ bắt đầu không hợp lệ.");
-
-        if (!TimeSpan.TryParse(model.EndTime, out var endTime))
-            ModelState.AddModelError("EndTime", "Giờ kết thúc không hợp lệ.");
-
-        if (ModelState.IsValid && startTime >= endTime)
-            ModelState.AddModelError("EndTime", "Giờ kết thúc phải lớn hơn giờ bắt đầu.");
-
-        if (!ModelState.IsValid)
-            return View(model);
-
-        // KIỂM TRA TRÙNG GIỜ
-        var allBookingsResponse = await pitchBookingService.GetAllBookingsAsync(model.BookingDate, model.BookingDate);
-        if (allBookingsResponse.Success && allBookingsResponse.Data != null)
-        {
-            var isConflict = allBookingsResponse.Data.Any(b =>
-                b.PitchId == model.PitchId &&
-                b.Status != "2" && b.Status != "Cancelled" && b.Status != "Đã hủy" &&
-                (startTime < b.EndTime && endTime > b.StartTime)
-            );
-
-            if (isConflict)
-            {
-                ModelState.AddModelError(string.Empty, $"Sân này khung giờ {model.StartTime} - {model.EndTime} đã có người đặt.");
-                return View(model);
-            }
-        }
+        if (!ModelState.IsValid) return View(model);
 
         var requestDto = new CreateAdminPitchBookingDto
         {
@@ -94,38 +68,34 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
             CustomerName = model.CustomerName,
             CustomerPhone = model.CustomerPhone,
             BookingDate = model.BookingDate,
-            StartTime = startTime,
-            EndTime = endTime,
+            StartTime = TimeSpan.Parse(model.StartTime),
+            EndTime = TimeSpan.Parse(model.EndTime),
             Notes = model.Notes,
-            Status = 0 // Mặc định là Chờ duyệt / Chờ thanh toán
+            Status = BookingStatus.Pending // Khách đặt luôn ở trạng thái chờ
         };
 
         var response = await pitchBookingService.CreateAdminBookingAsync(requestDto);
 
         if (response.Success)
         {
-            // RẼ NHÁNH XỬ LÝ THEO PHƯƠNG THỨC THANH TOÁN
+            // LẤY ID THẬT TỪ SERVICE TRẢ VỀ
+            Guid actualBookingId = response.Data;
+
             if (model.PaymentMethod == "VNPay")
             {
-                var duration = (endTime - startTime).TotalHours;
-                var totalPrice = (decimal)duration * model.PricePerHour;
-                var depositAmount = totalPrice * 0.3m;
+                var duration = (TimeSpan.Parse(model.EndTime) - TimeSpan.Parse(model.StartTime)).TotalHours;
+                var depositAmount = (decimal)duration * model.PricePerHour * 0.3m;
 
-                // Tạm dùng Guid.NewGuid() làm mã GD. Nếu Service bạn trả về Id thật thì thay vào đây.
-                Guid newBookingId = Guid.NewGuid();
-
-                var paymentUrl = vnPayService.CreatePaymentUrl(HttpContext, newBookingId, depositAmount);
+                // Truyền ID THẬT vào VNPay
+                var paymentUrl = vnPayService.CreatePaymentUrl(HttpContext, actualBookingId, depositAmount);
                 return Redirect(paymentUrl);
             }
-            else
-            {
-                // Thanh toán Tiền mặt -> Báo thành công luôn, để Admin tự duyệt bằng tay
-                TempData["SuccessMessage"] = "Gửi yêu cầu đặt sân thành công! Vui lòng chờ Admin duyệt và liên hệ lại.";
-                return RedirectToAction("Index", "Home");
-            }
+
+            TempData["SuccessMessage"] = "Yêu cầu đặt sân đã được gửi!";
+            return RedirectToAction("Index", "Home");
         }
 
-        ModelState.AddModelError(string.Empty, response.Message ?? "Có lỗi xảy ra khi tạo lịch đặt.");
+        ModelState.AddModelError(string.Empty, response.Message);
         return View(model);
     }
 

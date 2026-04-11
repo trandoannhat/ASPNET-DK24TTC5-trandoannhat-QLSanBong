@@ -1,9 +1,10 @@
-using QLSanBong.Domain.Enums;
+﻿using QLSanBong.Domain.Enums;
 using QLSanBong.Domain.Interfaces.Base;
 using QLSanBong.Domain.Entities.Base;
 
 namespace QLSanBong.Domain.Entities;
 
+// Thông tin khách đặt lịch sân
 public class PitchBooking : BaseEntity, IAuditable, ISoftDelete
 {
     public Guid UserId { get; set; }
@@ -15,18 +16,17 @@ public class PitchBooking : BaseEntity, IAuditable, ISoftDelete
     public DateTime BookingDate { get; set; }
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
-    
+
     public decimal TotalPrice { get; set; }
     public BookingStatus Status { get; set; }
     public string? Notes { get; set; }
 
-    // IAuditable
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    
-    // ISoftDelete
+
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAt { get; set; }
+
     public ICollection<BookingService> BookingServices { get; set; } = new List<BookingService>();
 
     public void Undo()

@@ -5,24 +5,24 @@ using QLSanBong.Common.Exceptions;
 
 namespace QLSanBong.API.Controllers;
 
-
 [Route("api/[controller]")]
 public class FilesController(IFileService fileService) : BaseApiController
 {
     [HttpPost("upload")]
     public async Task<IActionResult> Upload(IFormFile file, string folder = "general")
     {
-        if (file == null) return Error("Chưa chọn file");
+        if (file == null) return Error("Chưa chọn file", "FileEmpty");
 
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
         var extension = Path.GetExtension(file.FileName).ToLower();
+
         if (!allowedExtensions.Contains(extension))
-            return Error("Chỉ hỗ trợ định dạng ảnh (.jpg, .png, .webp)");
+            return Error("Chỉ hỗ trợ định dạng ảnh (.jpg, .png, .webp, .gif)", "InvalidFormat");
 
         if (file.Length > 5 * 1024 * 1024)
-            return Error("Dung lượng file tối đa là 5MB");
+            return Error("Dung lượng file tối đa là 5MB", "FileTooLarge");
 
         var url = await fileService.UploadImageAsync(file, folder);
-        return Success(new { url }, "Upload ảnh thành công", "Upload File");
+        return Success(new { url }, "Upload ảnh thành công", "UploadFile");
     }
 }

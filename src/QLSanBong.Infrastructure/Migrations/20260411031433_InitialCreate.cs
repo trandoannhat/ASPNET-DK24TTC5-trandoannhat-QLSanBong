@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace QLSanBong.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initdb : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,6 +19,7 @@ namespace QLSanBong.Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PitchType = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     PricePerHour = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
@@ -27,6 +28,21 @@ namespace QLSanBong.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pitches", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Services",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Unit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Services", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -48,6 +64,29 @@ namespace QLSanBong.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PitchMaintenances",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PitchId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EstimatedCost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PitchMaintenances", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PitchMaintenances_Pitches_PitchId",
+                        column: x => x.PitchId,
+                        principalTable: "Pitches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -85,6 +124,43 @@ namespace QLSanBong.Infrastructure.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BookingServices",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BookingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingServices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BookingServices_PitchBookings_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "PitchBookings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookingServices_Services_ServiceId",
+                        column: x => x.ServiceId,
+                        principalTable: "Services",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingServices_BookingId",
+                table: "BookingServices",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingServices_ServiceId",
+                table: "BookingServices",
+                column: "ServiceId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_PitchBookings_PitchId",
                 table: "PitchBookings",
@@ -94,6 +170,11 @@ namespace QLSanBong.Infrastructure.Migrations
                 name: "IX_PitchBookings_UserId",
                 table: "PitchBookings",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PitchMaintenances_PitchId",
+                table: "PitchMaintenances",
+                column: "PitchId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
@@ -106,7 +187,16 @@ namespace QLSanBong.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "BookingServices");
+
+            migrationBuilder.DropTable(
+                name: "PitchMaintenances");
+
+            migrationBuilder.DropTable(
                 name: "PitchBookings");
+
+            migrationBuilder.DropTable(
+                name: "Services");
 
             migrationBuilder.DropTable(
                 name: "Pitches");

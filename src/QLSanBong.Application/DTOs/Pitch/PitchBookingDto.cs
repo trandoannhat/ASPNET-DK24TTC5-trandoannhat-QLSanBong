@@ -1,5 +1,4 @@
-﻿
-using QLSanBong.Domain.Enums;
+﻿using QLSanBong.Domain.Enums;
 
 namespace QLSanBong.Application.DTOs.Pitch;
 
@@ -36,7 +35,7 @@ public class CreatePitchBookingDto
 {
     public Guid PitchId { get; set; }
     public DateTime BookingDate { get; set; }
-    public string StartTime { get; set; } = string.Empty; 
+    public string StartTime { get; set; } = string.Empty;
     public string EndTime { get; set; } = string.Empty;
     public string? Notes { get; set; }
 }
@@ -56,9 +55,9 @@ public class CreateAdminPitchBookingDto
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public string? Notes { get; set; }
-    public int Status { get; set; } = 1; // 1 = Confirmed
+    public BookingStatus Status { get; set; } = BookingStatus.Approved;
 }
-// Đại diện cho 1 dòng "Bò húc x 2 = 30.000đ" trong hóa đơn
+
 public class BookingServiceItemDto
 {
     public string ServiceName { get; set; } = string.Empty;
@@ -67,11 +66,7 @@ public class BookingServiceItemDto
     public decimal TotalAmount { get; set; }
 }
 
-// Chứa toàn bộ thông tin Hóa đơn
 public class PitchBookingDetailDto : PitchBookingDto
 {
-    // Kế thừa toàn bộ Tên khách, Giờ đá, TotalPrice từ PitchBookingDto...
-
-    // Bổ sung thêm danh sách dịch vụ đã gọi
     public List<BookingServiceItemDto> PurchasedServices { get; set; } = new();
 }

@@ -1,4 +1,4 @@
-﻿using QLSanBong.Domain.Entities.Base; 
+﻿using QLSanBong.Domain.Entities.Base;
 using QLSanBong.Domain.Enums;
 using QLSanBong.Domain.Interfaces.Base;
 
@@ -11,14 +11,13 @@ public class User : AuditableEntity, ISoftDelete
     public string PasswordHash { get; set; } = string.Empty;
     public string? PhoneNumber { get; set; }
     public string? AvatarUrl { get; set; }
-    public UserRole Role { get; set; } = UserRole.Client;
+    public UserRole Role { get; set; } = UserRole.Customer; 
 
     public ICollection<PitchBooking> PitchBookings { get; set; } = new List<PitchBooking>();
 
     public bool IsDeleted { get; set; } = false;
     public DateTime? DeletedAt { get; set; }
 
-    // Logic khi muốn khôi phục lại tài khoản đã xóa
     public void Undo()
     {
         IsDeleted = false;

@@ -1,27 +1,17 @@
 ﻿using QLSanBong.Common.Exceptions;
 using QLSanBong.Common.Wrappers;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
 
 namespace QLSanBong.API.Middlewares;
 
-public class ErrorHandlerMiddleware
+public class ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ErrorHandlerMiddleware> _logger;
-
-    public ErrorHandlerMiddleware(RequestDelegate next, ILogger<ErrorHandlerMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await _next(context);
+            await next(context);
         }
         catch (Exception error)
         {
@@ -34,45 +24,42 @@ public class ErrorHandlerMiddleware
         var response = context.Response;
         response.ContentType = "application/json";
 
-        // Khởi tạo model trả về mặc định (Lỗi)
-        // Constructor này đã tự set Success = false và Description = "NhatDev - Error"
-        var responseModel = new ApiResponse<string>(error.Message, "Error");
+        var statusCode = HttpStatusCode.InternalServerError;
+        var message = error.Message;
+        var action = "SystemError";
+        List<string>? errors = null;
 
         switch (error)
         {
-            case Common.Exceptions.ValidationException e:
-                // Lỗi 400: Dữ liệu input sai
-                response.StatusCode = (int)HttpStatusCode.BadRequest;
-                responseModel.Errors = e.Errors;
-                responseModel.Message = "Dữ liệu không hợp lệ";
-                responseModel.Description = "NhatDev - Validation Error";
+            case ValidationException e:
+                statusCode = HttpStatusCode.BadRequest;
+                message = "Dữ liệu không hợp lệ";
+                action = "ValidationError";
+                errors = e.Errors;
                 break;
 
-            case ApiException e:
-                // Lỗi Logic chung (ví dụ: Email đã tồn tại)
-                response.StatusCode = (int)HttpStatusCode.BadRequest;
+            case ApiException:
+                statusCode = HttpStatusCode.BadRequest;
+                action = "LogicError";
                 break;
 
-            case NotFoundException e:
-                // Lỗi 404: Không tìm thấy
-                response.StatusCode = (int)HttpStatusCode.NotFound;
-                responseModel.Description = "NhatDev - Not Found";
-                break;
-
-            case KeyNotFoundException e:
-                response.StatusCode = (int)HttpStatusCode.NotFound;
+            case NotFoundException:
+                statusCode = HttpStatusCode.NotFound;
+                action = "NotFound";
                 break;
 
             default:
-                // Lỗi 500: Server chết (Lỗi code, lỗi DB...)
-                _logger.LogError(error, error.Message); // Ghi log để dev sửa
-
-                response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                responseModel.Message = "Lỗi hệ thống (Internal Server Error)";
-                // Với lỗi 500, không nên show chi tiết lỗi cho user (bảo mật), trừ khi đang Dev
-                // responseModel.Errors = new List<string> { error.Message }; 
+                logger.LogError(error, error.Message);
+                message = "Đã có lỗi hệ thống xảy ra. Vui lòng thử lại sau.";
                 break;
         }
+
+        response.StatusCode = (int)statusCode;
+
+        // Sử dụng cấu trúc ApiResponse mới
+        var responseModel = errors != null
+            ? ApiResponse<string>.ValidationResponse(errors, action)
+            : ApiResponse<string>.FailureResponse(message, action);
 
         var result = JsonSerializer.Serialize(responseModel, new JsonSerializerOptions
         {

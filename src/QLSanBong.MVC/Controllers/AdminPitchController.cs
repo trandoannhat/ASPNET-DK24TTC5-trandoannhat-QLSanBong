@@ -10,10 +10,9 @@ using System.IO;
 namespace QLSanBong.MVC.Controllers;
 
 [Authorize(Roles = "Admin,PitchAdmin")]
-public class AdminPitchController(IPitchBookingService pitchBookingService, IMapper mapper, IWebHostEnvironment webHostEnvironment) : Controller
+public class AdminPitchController(IPitchBookingService pitchBookingService, IMapper mapper, IFileService fileService) : Controller
 {
-    private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
-
+   
     public async Task<IActionResult> Index()
     {
         var apiResponse = await pitchBookingService.GetAllPitchesAsync();
@@ -31,44 +30,28 @@ public class AdminPitchController(IPitchBookingService pitchBookingService, IMap
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreatePitchViewModel model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid) return View(model);
+
+        var createDto = mapper.Map<CreatePitchDto>(model);
+
+        if (model.ImageFile != null && model.ImageFile.Length > 0)
         {
-            var createDto = mapper.Map<CreatePitchDto>(model);
-
-            if (model.ImageFile != null && model.ImageFile.Length > 0)
-            {
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + model.ImageFile.FileName;
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "pitches");
-
-                if (!Directory.Exists(uploadsFolder))
-                {
-                    Directory.CreateDirectory(uploadsFolder);
-                }
-
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await model.ImageFile.CopyToAsync(fileStream);
-                }
-
-                createDto.ImageUrl = "/images/pitches/" + uniqueFileName;
-            }
-            else
-            {
-                createDto.ImageUrl = "/images/pitches/default_pitch.jpg";
-            }
-
-            // ĐÃ SỬA: Gọi đúng biến pitchBookingService
-            var response = await pitchBookingService.CreatePitchAsync(createDto);
-
-            if (response.Success)
-            {
-                TempData["SuccessMessage"] = "Thêm sân bóng thành công!";
-                return RedirectToAction(nameof(Index));
-            }
-            ModelState.AddModelError("", response.Message ?? "Lỗi tạo sân");
+            // Gọi Service xử lý upload (vừa sạch code, vừa tự sinh Guid tên file bên trong)
+            createDto.ImageUrl = await fileService.UploadImageAsync(model.ImageFile, "pitches");
         }
+        else
+        {
+            createDto.ImageUrl = "/images/pitches/default_pitch.jpg";
+        }
+
+        var response = await pitchBookingService.CreatePitchAsync(createDto);
+        if (response.Success)
+        {
+            TempData["SuccessMessage"] = "Thêm sân thành công!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        ModelState.AddModelError("", response.Message);
         return View(model);
     }
 
@@ -124,7 +107,7 @@ public class AdminPitchController(IPitchBookingService pitchBookingService, IMap
             StartTime = startTime,
             EndTime = endTime,
             Notes = model.Notes,
-            Status = (int)model.Status
+            Status = model.Status
         };
 
         var response = await pitchBookingService.CreateAdminBookingAsync(requestDto);
@@ -156,7 +139,7 @@ public class AdminPitchController(IPitchBookingService pitchBookingService, IMap
             Name = response.Data.Name,
             PitchType = response.Data.PitchType,
             PricePerHour = response.Data.PricePerHour,
-            // Sẵn sàng nhận ImageUrl nếu bạn đã thêm vào DTO
+          
             ImageUrl = response.Data.ImageUrl
         };
 

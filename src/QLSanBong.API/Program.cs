@@ -19,13 +19,16 @@ builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
     {
+        // Lấy danh sách các lỗi validation từ ModelState
         var errors = context.ModelState
-            .Where(e => e.Value.Errors.Count > 0)
-            .SelectMany(x => x.Value.Errors)
+            .Where(e => e.Value != null && e.Value.Errors.Count > 0)
+            .SelectMany(x => x.Value!.Errors)
             .Select(x => x.ErrorMessage)
             .ToList();
 
-        var response = new ApiResponse<string>(errors, "Dữ liệu không hợp lệ");
+        
+        var response = ApiResponse<string>.ValidationResponse(errors, "ModelStateInvalid");
+
         return new BadRequestObjectResult(response);
     };
 });

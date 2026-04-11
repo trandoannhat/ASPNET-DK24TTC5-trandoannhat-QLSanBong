@@ -9,18 +9,19 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
     {
-        // 1. Đăng ký AutoMapper tự động quét profile
+        // Đăng ký AutoMapper tự động quét các Mapping Profile
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-        // 2. Đăng ký toàn bộ các Business Services
+        // Đăng ký các dịch vụ cốt lõi
         services.AddScoped<IAccountService, AccountService>();
-        
-        
-        //đăng ký cho sân bóng
-        services.AddScoped<IPitchBookingService, PitchBookingService>();
-
         services.AddScoped<IDashboardService, DashboardService>();
 
+        // Đăng ký dịch vụ liên quan đến Sân bóng và Đặt sân
+        services.AddScoped<IPitchBookingService, PitchBookingService>();
+
+        // Đăng ký dịch vụ quản lý dịch vụ phụ trợ và thanh toán
+        services.AddScoped<IServiceManagementService, ServiceManagementService>();
+        services.AddScoped<IVnPayService, VnPayService>();
 
         return services;
     }

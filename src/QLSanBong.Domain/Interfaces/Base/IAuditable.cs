@@ -1,6 +1,6 @@
 ﻿namespace QLSanBong.Domain.Interfaces.Base;
 
-// 1. Chỉ những thằng nào cần biết ngày giờ tạo/sửa mới dùng cái này
+// Tracking thời gian tạo và cập nhật bản ghi
 public interface IAuditable
 {
     DateTime CreatedAt { get; set; }

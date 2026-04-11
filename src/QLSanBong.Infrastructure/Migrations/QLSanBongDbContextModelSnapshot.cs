@@ -250,7 +250,7 @@ namespace QLSanBong.Infrastructure.Migrations
             modelBuilder.Entity("QLSanBong.Domain.Entities.BookingService", b =>
                 {
                     b.HasOne("QLSanBong.Domain.Entities.PitchBooking", "Booking")
-                        .WithMany()
+                        .WithMany("BookingServices")
                         .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -275,7 +275,7 @@ namespace QLSanBong.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("QLSanBong.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("PitchBookings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -297,6 +297,16 @@ namespace QLSanBong.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("QLSanBong.Domain.Entities.Pitch", b =>
+                {
+                    b.Navigation("PitchBookings");
+                });
+
+            modelBuilder.Entity("QLSanBong.Domain.Entities.PitchBooking", b =>
+                {
+                    b.Navigation("BookingServices");
+                });
+
+            modelBuilder.Entity("QLSanBong.Domain.Entities.User", b =>
                 {
                     b.Navigation("PitchBookings");
                 });
