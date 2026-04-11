@@ -1,86 +1,109 @@
-🏟️ HỆ THỐNG QUẢN LÝ SÂN BÓNG MINI (QLSanBong)
+# 🏟️ HỆ THỐNG QUẢN LÝ SÂN BÓNG MINI (QLSanBong)
 
-1. Giới thiệu đề tài
-   Trong bối cảnh nhu cầu thuê sân bóng đá mini ngày càng tăng cao, việc quản lý thủ công thường dẫn đến các sai sót như trùng lịch, khó kiểm soát doanh thu dịch vụ và thiếu thông tin khách hàng. Dự án QLSanBong được xây dựng nhằm số hóa toàn diện quy trình vận hành, giúp chủ sân tối ưu hóa việc kinh doanh và mang lại trải nghiệm chuyên nghiệp cho người chơi.
+## 1. Giới thiệu đề tài
 
-2. Công nghệ sử dụng
-   Backend: ASP.NET Core 8.0 (Web API & MVC).
+Trong bối cảnh nhu cầu thuê sân bóng đá mini ngày càng tăng cao, việc quản lý thủ công thường dẫn đến các sai sót như:
 
-   Database: SQL Server & Entity Framework Core (Code-First).
+- Trùng lịch đặt sân
+- Khó kiểm soát doanh thu dịch vụ
+- Thiếu thông tin khách hàng
 
-   Kiến trúc: Clean Architecture, Repository Pattern & Unit of Work.
+Dự án **QLSanBong** được xây dựng nhằm số hóa toàn diện quy trình vận hành, giúp chủ sân tối ưu hóa việc kinh doanh và mang lại trải nghiệm chuyên nghiệp cho người chơi.
 
-   Xác thực: JWT Bearer Token & Cookie Authentication.
+---
 
-   Thanh toán: Tích hợp cổng thanh toán trực tuyến VNPay.
+## 2. Công nghệ sử dụng
 
-   Giao diện: Bootstrap 5, AJAX & thư viện FullCalendar (vẽ lịch thi đấu trực quan).
+- Backend: ASP.NET Core 8.0 (Web API & MVC)
+- Database: SQL Server & Entity Framework Core (Code-First)
+- Kiến trúc: Clean Architecture, Repository Pattern & Unit of Work
+- Xác thực: JWT Bearer Token & Cookie Authentication
+- Thanh toán: VNPay
+- Giao diện: Bootstrap 5, AJAX & FullCalendar
+- Mapping: AutoMapper
 
-Mapping: AutoMapper.
+---
 
-3. Kiến trúc hệ thống (Clean Architecture)
-   Dự án được phân chia thành 5 lớp rõ rệt nhằm đảm bảo tính bảo trì và mở rộng:
+## 3. Kiến trúc hệ thống (Clean Architecture)
 
-QLSanBong.Domain: Chứa các thực thể (Entities) cốt lõi như User, Pitch, PitchBooking, Service và các Interface nền tảng.
+Dự án được chia thành 5 lớp:
 
-QLSanBong.Application: Chứa logic nghiệp vụ (Services), DTOs và cấu hình Mapping.
+- **QLSanBong.Domain**  
+  Chứa các thực thể: `User`, `Pitch`, `PitchBooking`, `Service`
 
-QLSanBong.Infrastructure: Xử lý kết nối Database (DbContext), triển khai Repositories và các dịch vụ ngoại vi như File Upload, VNPay.
+- **QLSanBong.Application**  
+  Chứa Services, DTOs, Mapping
 
-QLSanBong.API: Cung cấp hệ thống RESTful API cho đa nền tảng.
+- **QLSanBong.Infrastructure**  
+  DbContext, Repository, tích hợp VNPay, Upload file
 
-QLSanBong.MVC: Giao diện Web dành cho người dùng cuối và quản trị viên.
+- **QLSanBong.API**  
+  RESTful API
 
-4. Các tính năng nổi bật đã triển khai
-   👨‍💼 Đối với Quản trị viên (Admin/Manager)
-   Dashboard: Thống kê doanh thu thực tế, số lượng đặt sân theo ngày/tháng và biểu đồ tăng trưởng 7 ngày gần nhất.
+- **QLSanBong.MVC**  
+  Giao diện Web
 
-   Lịch biểu (Calendar): Theo dõi toàn bộ ca đá trong tuần/tháng dưới dạng lưới thời gian trực quan bằng FullCalendar.
+---
 
-   Quản lý Sân bóng: Thêm, sửa, xóa thông tin sân (tên, loại sân 5/7/11, giá tiền) và upload ảnh thực tế.
+## 4. Các tính năng nổi bật
 
-   Canteen & Dịch vụ: Thêm nước uống, thuê bóng, thuê áo pit vào hóa đơn trực tiếp cho từng ca đá của khách.
+### 👨‍💼 Đối với Quản trị viên (Admin / Manager)
 
-   Xử lý Đặt sân: Duyệt hoặc hủy lịch đặt online, đồng thời hỗ trợ tạo lịch nhanh cho khách vãng lai (Offline).
+- Dashboard: thống kê doanh thu, biểu đồ 7 ngày
+- Calendar: xem lịch sân trực quan
+- Quản lý sân: thêm / sửa / xóa / upload ảnh
+- Canteen: thêm dịch vụ vào hóa đơn
+- Xử lý đặt sân: duyệt / hủy / tạo nhanh
 
-🏃‍♂️ Đối với Khách hàng (Customer)
-Tra cứu sân: Tìm kiếm sân trống theo ngày và khung giờ mong muốn.
+### 🏃‍♂️ Đối với Khách hàng (Customer)
 
-      Đặt sân & Thanh toán: Đặt sân trực tuyến và thực hiện thanh toán cọc (30%) qua cổng VNPay để giữ chỗ tự động.
+- Tra cứu sân theo ngày và giờ
+- Đặt sân online + cọc 30% (VNPay)
+- Xem lịch sử và hóa đơn
 
-      Quản lý cá nhân: Theo dõi lịch sử đặt sân và trạng thái hóa đơn.
+---
 
-5. Hướng dẫn cài đặt & Chạy project
-   Bước 1: Clone source code
-   Bash
-   git clone https://github.com/trandoannhat/ASPNET-DK24TTC5-trandoannhat-QLSanBong.git
-   cd ASPNET-DK24TTC5-trandoannhat-QLSanBong
-   Bước 2: Cấu hình Database
-   Mở file appsettings.json tại project QLSanBong.API (hoặc MVC) và chỉnh lại chuỗi kết nối:
+## 5. Hướng dẫn cài đặt & chạy project
 
-JSON
+### Bước 1: Clone source code
+
+\`\`\`bash
+git clone https://github.com/trandoannhat/ASPNET-DK24TTC5-trandoannhat-QLSanBong.git
+cd ASPNET-DK24TTC5-trandoannhat-QLSanBong
+\`\`\`
+
+### Bước 2: Cấu hình Database
+
+Mở file \`appsettings.json\` trong project **QLSanBong.API** (hoặc MVC):
+
+\`\`\`json
 "ConnectionStrings": {
 "DefaultConnection": "Server=.;Database=QLSanBong;Trusted_Connection=True;TrustServerCertificate=True;"
 }
-Bước 3: Cập nhật Database (Migration)
-Chạy lệnh sau trong Package Manager Console:
+\`\`\`
 
-Bash
+### Bước 3: Cập nhật Database (Migration)
+
+\`\`\`bash
 dotnet ef database update
-(Hệ thống đã tích hợp DataSeeder, tự động tạo tài khoản Admin và dữ liệu sân mẫu ở lần chạy đầu tiên).
+\`\`\`
 
-Bước 4: Chạy ứng dụng
-Chọn Multiple Startup Projects cho cả QLSanBong.API và QLSanBong.MVC.
+> Hệ thống có DataSeeder tự tạo dữ liệu mẫu
 
-Nhấn F5 để khởi động.
+### Bước 4: Chạy ứng dụng
 
-6. Thông tin sinh viên thực hiện
-   Họ tên: Trần Doãn Nhất
+- Chọn Multiple Startup Projects:
+  - QLSanBong.API
+  - QLSanBong.MVC
 
-   Môn học: Đồ án Web ASP.NET
+👉 Nhấn **F5** để chạy
 
-   Đề tài: Xây dựng website quản lý sân bóng đá mini
+---
 
-   Email: doannhatit@gmail.com
+## 6. Thông tin sinh viên thực hiện
 
-   SĐT: 0907.011.886
+- Họ tên: Trần Doãn Nhất
+- Môn học: Đồ án Web ASP.NET
+- Đề tài: Website quản lý sân bóng mini
+- Email: doannhatit@gmail.com
+- SĐT: 0907.011.886
