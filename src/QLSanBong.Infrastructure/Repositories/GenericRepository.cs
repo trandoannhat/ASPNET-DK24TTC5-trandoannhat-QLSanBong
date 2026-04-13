@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using QLSanBong.Domain.Entities.Base; // Sửa namespace BaseEntity
+using QLSanBong.Domain.Entities.Base; 
 using QLSanBong.Domain.Interfaces;
 using QLSanBong.Domain.Interfaces.Base;
 using QLSanBong.Infrastructure.Data;
@@ -11,7 +11,7 @@ public class GenericRepository<T>(QLSanBongDbContext context) : IGenericReposito
 {
     protected readonly DbSet<T> _dbSet = context.Set<T>();
 
-    // 1. Get Queryable (Đã tối ưu)
+    // 1. Get Queryable 
     public IQueryable<T> GetAllQueryable()
     {
         // Không cần check ISoftDelete ở đây nữa
@@ -40,7 +40,7 @@ public class GenericRepository<T>(QLSanBongDbContext context) : IGenericReposito
 
     public void Update(T entity) => _dbSet.Update(entity);
 
-    // 2. Xử lý Delete (Thông minh)
+    // 2. Xử lý Delete 
     public void Delete(T entity)
     {
         if (entity is ISoftDelete softDeleteEntity)
@@ -52,7 +52,7 @@ public class GenericRepository<T>(QLSanBongDbContext context) : IGenericReposito
         }
         else
         {
-            // Nếu không hỗ trợ xóa mềm (vd: ProjectImage) -> Xóa cứng
+            //  Xóa cứng
             _dbSet.Remove(entity);
         }
     }

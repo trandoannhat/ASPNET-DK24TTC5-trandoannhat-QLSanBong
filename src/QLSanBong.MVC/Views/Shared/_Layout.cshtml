@@ -50,15 +50,12 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item fw-bold text-success" asp-controller="AdminBooking" asp-action="Calendar">
-                                            <i class="bi bi-calendar-week me-2"></i>Lịch Biểu Sân Bóng <span class="badge bg-danger ms-1" style="font-size: 0.7em;"></span>
+                                            <i class="bi bi-calendar-week me-2"></i>Lịch Biểu Sân Bóng
                                         </a>
                                     </li>
-                                   
                                     <li><a class="dropdown-item" asp-controller="AdminPitch" asp-action="Index"><i class="bi bi-grid me-2"></i>Quản Lý Sân Bóng</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-controller="AdminService" asp-action="Index"><i class="bi bi-cup-straw me-2"></i>Quản Lý Dịch Vụ</a></li>
-                                  
-                                  
                                 </ul>
                             </li>
                         }
@@ -73,7 +70,9 @@
                                     <i class="bi bi-person-circle"></i> Chào, @User.Identity.Name
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Hồ sơ cá nhân</a></li>
+
+                                  
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person me-2"></i>Hồ sơ cá nhân</a></li>
 
                                     <li><a class="dropdown-item" asp-controller="Pitch" asp-action="MyBookings"><i class="bi bi-clock-history me-2"></i>Lịch sử đặt sân</a></li>
 
@@ -107,7 +106,7 @@
 
     <footer class="border-top footer text-muted mt-auto py-4 bg-white">
         <div class="container text-center">
-            &copy; @DateTime.Now.Year - NhatDev Sports - Thiết kế bởi NhatDev
+            &copy; @DateTime.Now.Year - DNhat Sports - Thiết kế bởi DNhat
         </div>
     </footer>
 

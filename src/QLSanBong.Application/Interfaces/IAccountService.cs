@@ -10,6 +10,7 @@ public interface IAccountService
     Task<ApiResponse<string>> RegisterAsync(RegisterRequest request);
     Task<ApiResponse<UserProfileDto>> GetProfileAsync(string userId);
     Task<ApiResponse<string>> UpdateProfileAsync(string userId, UpdateProfileRequest request);
+    Task<ApiResponse<string>> ChangePasswordAsync(string userId, ChangePasswordRequest request);
 
     // Quản lý hệ thống
     Task<ApiResponse<IEnumerable<UserProfileDto>>> GetAllUsersAsync();

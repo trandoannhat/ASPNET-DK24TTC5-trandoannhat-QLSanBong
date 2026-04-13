@@ -86,4 +86,15 @@ public class AccountController(IAccountService accountService) : BaseApiControll
         var response = await accountService.DeleteUserAsync(currentUserId, id);
         return response.Success ? Ok(response) : BadRequest(response);
     }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var userId = User.FindFirstValue("id") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+        var response = await accountService.ChangePasswordAsync(userId, request);
+        return response.Success ? Ok(response) : BadRequest(response);
+    }
 }

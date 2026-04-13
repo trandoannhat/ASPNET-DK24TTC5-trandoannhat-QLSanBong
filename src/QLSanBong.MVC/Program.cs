@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. ĐĂNG KÝ KIẾN TRÚC & SERVICE CHUNG
 // ============================================
 
-// Nạp cấu hình JwtSettings để AccountService không bị lỗi
+// Đăng ký cấu hình JwtSettings để AccountService 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
 
 // Gọi các tầng kiến trúc
@@ -21,11 +21,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 // Đăng ký AutoMapper riêng cho MVC
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-// Đăng ký Service quản lý (Nếu sau này bạn rảnh, hãy chuyển dòng này vào AddApplicationLayer nhé)
+// Đăng ký Service quản lý 
 builder.Services.AddScoped<IServiceManagementService, ServiceManagementService>();
 builder.Services.AddScoped<VnPayService>();
 
-// Gom chung AddControllersWithViews và Razor Runtime Compilation vào 1 chỗ
+
 var mvcBuilder = builder.Services.AddControllersWithViews();
 if (builder.Environment.IsDevelopment())
 {
@@ -53,7 +53,7 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios.
+
     app.UseHsts();
 }
 
@@ -62,7 +62,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// Xác thực & Phân quyền (Thứ tự này bắt buộc phải đứng sau Routing và trước Endpoints)
+// Xác thực & Phân quyền
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -159,7 +159,7 @@ public class AdminPitchController(IPitchBookingService pitchBookingService, IMap
             Name = model.Name,
             PitchType = model.PitchType,
             PricePerHour = model.PricePerHour,
-            // ImageUrl sẽ được xử lý giống hàm Create nếu bạn code thêm chức năng đổi ảnh
+       
             ImageUrl = model.ImageUrl
         };
 

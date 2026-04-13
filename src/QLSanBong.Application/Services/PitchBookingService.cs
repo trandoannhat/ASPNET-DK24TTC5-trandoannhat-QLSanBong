@@ -96,7 +96,13 @@ public class PitchBookingService(IUnitOfWork unitOfWork, IMapper mapper) : IPitc
 
     public async Task<ApiResponse<Guid>> CreatePitchAsync(CreatePitchDto request)
     {
-        var pitch = new Pitch { Name = request.Name, PitchType = request.PitchType, PricePerHour = request.PricePerHour };
+        var pitch = new Pitch
+        {
+            Name = request.Name,
+            PitchType = request.PitchType,
+            PricePerHour = request.PricePerHour,
+            ImageUrl = request.ImageUrl
+        };
         await unitOfWork.Pitches.AddAsync(pitch);
         await unitOfWork.CompleteAsync();
         return ApiResponse<Guid>.SuccessResponse(pitch.Id, "Thêm sân thành công.");
@@ -110,6 +116,7 @@ public class PitchBookingService(IUnitOfWork unitOfWork, IMapper mapper) : IPitc
         pitch.Name = request.Name;
         pitch.PitchType = request.PitchType;
         pitch.PricePerHour = request.PricePerHour;
+        pitch.ImageUrl = request.ImageUrl;
 
         unitOfWork.Pitches.Update(pitch);
         await unitOfWork.CompleteAsync();
@@ -160,19 +167,31 @@ public class PitchBookingService(IUnitOfWork unitOfWork, IMapper mapper) : IPitc
         var pitch = await unitOfWork.Pitches.GetByIdAsync(request.PitchId);
         if (pitch == null) return ApiResponse<Guid>.FailureResponse("Sân không tồn tại.");
 
-        var user = await unitOfWork.Users.GetAllQueryable().FirstOrDefaultAsync(u => u.PhoneNumber == request.CustomerPhone)
-                   ?? new User { FullName = request.CustomerName, PhoneNumber = request.CustomerPhone, Email = $"{request.CustomerPhone}@guest.local", PasswordHash = "GUEST", Role = UserRole.Customer };
+        // XỬ LÝ LỖI KHÓA NGOẠI: Tìm hoặc tạo User mới dựa trên số điện thoại
+        var user = await unitOfWork.Users.GetAllQueryable().FirstOrDefaultAsync(u => u.PhoneNumber == request.CustomerPhone);
 
-        if (user.Id == Guid.Empty) await unitOfWork.Users.AddAsync(user);
+        if (user == null)
+        {
+            user = new User
+            {
+                FullName = request.CustomerName,
+                PhoneNumber = request.CustomerPhone,
+                Email = $"{request.CustomerPhone}@guest.local",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Guest@123"),
+                Role = UserRole.Customer
+            };
+            await unitOfWork.Users.AddAsync(user);
+            await unitOfWork.CompleteAsync(); // Lưu trước để có UserId thực tế phục vụ cho Booking
+        }
 
         var booking = new PitchBooking
         {
             UserId = user.Id,
             PitchId = request.PitchId,
-            BookingDate = request.BookingDate,
+            BookingDate = request.BookingDate.Date,
             StartTime = request.StartTime,
             EndTime = request.EndTime,
-            Status = BookingStatus.Approved,
+            Status = request.Status,
             TotalPrice = pitch.PricePerHour * (decimal)(request.EndTime - request.StartTime).TotalHours,
             Notes = request.Notes
         };

@@ -39,20 +39,15 @@
         <h2 class="fw-bold text-uppercase text-success mb-0">
             <i class="bi bi-ui-checks-grid me-2"></i>Danh Sách Sân Bóng
         </h2>
-        <a asp-action="Create" class="btn btn-primary fw-bold shadow-sm rounded-pill px-4">
-            <i class="bi bi-plus-circle me-1"></i> Thêm Sân Mới
-        </a>
+        @if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("PitchAdmin")))
+        {
+            <a asp-controller="AdminPitch" asp-action="Create" class="btn btn-primary fw-bold shadow-sm rounded-pill px-4">
+                <i class="bi bi-plus-circle me-1"></i> Quản Lý Sân
+            </a>
+        }
     </div>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 border-0" role="alert">
-            <i class="bi bi-check-circle-fill me-2 fs-5 align-middle"></i>
-            <span class="align-middle">@TempData["SuccessMessage"]</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-
+    
     <div class="row g-4 mt-2">
         @if (Model != null && Model.Any())
         {

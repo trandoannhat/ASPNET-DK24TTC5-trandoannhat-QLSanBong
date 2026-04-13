@@ -169,4 +169,21 @@ public class AccountService(IUnitOfWork unitOfWork, IOptions<JwtSettings> jwtSet
 
         return ApiResponse<string>.SuccessResponse(targetUserId, "Xóa người dùng thành công");
     }
+    public async Task<ApiResponse<string>> ChangePasswordAsync(string userId, ChangePasswordRequest request)
+    {
+        var user = (await unitOfWork.Users.FindAsync(u => u.Id.ToString() == userId)).FirstOrDefault();
+        if (user == null) return ApiResponse<string>.FailureResponse("Người dùng không tồn tại.");
+
+        // Kiểm tra mật khẩu cũ
+        if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, user.PasswordHash))
+            return ApiResponse<string>.FailureResponse("Mật khẩu cũ không chính xác.");
+
+        // Hash mật khẩu mới
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+        unitOfWork.Users.Update(user);
+        await unitOfWork.CompleteAsync();
+
+        return ApiResponse<string>.SuccessResponse(user.Id.ToString(), "Đổi mật khẩu thành công.");
+    }
 }

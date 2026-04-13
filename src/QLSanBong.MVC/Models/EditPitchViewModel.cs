@@ -16,6 +16,6 @@ public class EditPitchViewModel
     [Range(10000, 5000000, ErrorMessage = "Giá thuê phải từ 10.000đ đến 5.000.000đ")]
     public decimal PricePerHour { get; set; }
 
-    // Thêm trường Link ảnh nếu bạn muốn đổi ảnh sân (nhớ thêm ImageUrl vào UpdatePitchDto ở tầng Application nhé)
+   
     public string? ImageUrl { get; set; }
 }

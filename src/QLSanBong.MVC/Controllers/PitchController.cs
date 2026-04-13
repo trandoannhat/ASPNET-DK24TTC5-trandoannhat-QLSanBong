@@ -12,6 +12,11 @@ namespace QLSanBong.MVC.Controllers;
 
 public class PitchController(IPitchBookingService pitchBookingService, IMapper mapper, VnPayService vnPayService) : Controller
 {
+    // ==========================================================
+    // 1. TÌM KIẾM VÀ XEM SÂN (PUBLIC)
+    // ==========================================================
+
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var apiResponse = await pitchBookingService.GetAllPitchesAsync();
@@ -25,7 +30,7 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
         var apiResponse = await pitchBookingService.GetAllPitchesAsync();
         var pitches = apiResponse.Data;
 
-        if (!string.IsNullOrEmpty(type))
+        if (!string.IsNullOrEmpty(type) && pitches != null)
         {
             pitches = pitches.Where(p => p.PitchType == type);
         }
@@ -37,6 +42,10 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
 
         return View("Index", pitchViewModels);
     }
+
+    // ==========================================================
+    // 2. NGHIỆP VỤ ĐẶT SÂN VÀ THANH TOÁN (PUBLIC / USER)
+    // ==========================================================
 
     [HttpGet]
     public async Task<IActionResult> Book(Guid pitchId)
@@ -71,31 +80,31 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
             StartTime = TimeSpan.Parse(model.StartTime),
             EndTime = TimeSpan.Parse(model.EndTime),
             Notes = model.Notes,
-            Status = BookingStatus.Pending // Khách đặt luôn ở trạng thái chờ
+            Status = BookingStatus.Pending // Khách đặt luôn ở trạng thái chờ duyệt
         };
 
         var response = await pitchBookingService.CreateAdminBookingAsync(requestDto);
 
         if (response.Success)
         {
-            // LẤY ID THẬT TỪ SERVICE TRẢ VỀ
+            // LẤY ID THẬT TỪ DATABASE TRẢ VỀ ĐỂ TRUYỀN SANG VNPAY
             Guid actualBookingId = response.Data;
 
             if (model.PaymentMethod == "VNPay")
             {
                 var duration = (TimeSpan.Parse(model.EndTime) - TimeSpan.Parse(model.StartTime)).TotalHours;
-                var depositAmount = (decimal)duration * model.PricePerHour * 0.3m;
+                var depositAmount = (decimal)duration * model.PricePerHour * 0.3m; // Tính tiền cọc 30%
 
-                // Truyền ID THẬT vào VNPay
+                // Truyền ID thật vào VNPay
                 var paymentUrl = vnPayService.CreatePaymentUrl(HttpContext, actualBookingId, depositAmount);
                 return Redirect(paymentUrl);
             }
 
-            TempData["SuccessMessage"] = "Yêu cầu đặt sân đã được gửi!";
+            TempData["SuccessMessage"] = "Yêu cầu đặt sân đã được gửi! Vui lòng chờ bộ phận quản lý xác nhận.";
             return RedirectToAction("Index", "Home");
         }
 
-        ModelState.AddModelError(string.Empty, response.Message);
+        ModelState.AddModelError(string.Empty, response.Message ?? "Có lỗi xảy ra khi tạo lịch đặt.");
         return View(model);
     }
 
@@ -117,7 +126,7 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
         {
             if (Guid.TryParse(bookingIdString, out Guid bookingId))
             {
-                // Gọi hàm xác nhận thanh toán VNPay (Cập nhật Status = 1 và dán nhãn)
+                // Xác nhận thanh toán thành công và cập nhật Status
                 await pitchBookingService.ConfirmVnPayDepositAsync(bookingId);
             }
 
@@ -132,114 +141,7 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
     }
 
     // ==========================================================
-    // CÁC HÀM QUẢN LÝ SÂN BÓNG (TẠO MỚI, SỬA, XÓA)
-    // ==========================================================
-
-    [HttpGet]
-    // [Authorize(Roles = "Admin,PitchAdmin")]
-    public IActionResult Create()
-    {
-        return View(new CreatePitchViewModel());
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    // [Authorize(Roles = "Admin,PitchAdmin")] 
-    public async Task<IActionResult> Create(CreatePitchViewModel model)
-    {
-        if (!ModelState.IsValid)
-            return View(model);
-
-        var requestDto = new CreatePitchDto
-        {
-            Name = model.Name,
-            PitchType = model.PitchType,
-            PricePerHour = model.PricePerHour,
-            ImageUrl = model.ImageUrl
-        };
-
-        var response = await pitchBookingService.CreatePitchAsync(requestDto);
-
-        if (response.Success)
-        {
-            TempData["SuccessMessage"] = "Thêm sân bóng mới thành công!";
-            return RedirectToAction(nameof(Index));
-        }
-
-        ModelState.AddModelError(string.Empty, response.Message ?? "Có lỗi xảy ra khi lưu sân bóng.");
-        return View(model);
-    }
-
-    [HttpGet]
-    // [Authorize(Roles = "Admin,PitchAdmin")]
-    public async Task<IActionResult> Edit(Guid id)
-    {
-        var response = await pitchBookingService.GetPitchByIdAsync(id);
-        if (!response.Success || response.Data == null)
-        {
-            return NotFound("Không tìm thấy thông tin sân bóng.");
-        }
-
-        var model = new CreatePitchViewModel // Dùng chung view model Create hoặc tạo UpdatePitchViewModel riêng
-        {
-            Name = response.Data.Name,
-            PitchType = response.Data.PitchType,
-            PricePerHour = response.Data.PricePerHour,
-            ImageUrl = response.Data.ImageUrl
-        };
-
-        ViewBag.PitchId = id; // Truyền ID sang view để POST lại
-        return View(model);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    // [Authorize(Roles = "Admin,PitchAdmin")]
-    public async Task<IActionResult> Edit(Guid id, CreatePitchViewModel model)
-    {
-        if (!ModelState.IsValid) return View(model);
-
-        var requestDto = new UpdatePitchDto
-        {
-            Id = id,
-            Name = model.Name,
-            PitchType = model.PitchType,
-            PricePerHour = model.PricePerHour,
-            ImageUrl = model.ImageUrl
-        };
-
-        var response = await pitchBookingService.UpdatePitchAsync(requestDto);
-
-        if (response.Success)
-        {
-            TempData["SuccessMessage"] = "Cập nhật thông tin sân bóng thành công!";
-            return RedirectToAction(nameof(Index));
-        }
-
-        ModelState.AddModelError(string.Empty, response.Message ?? "Cập nhật thất bại.");
-        return View(model);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    // [Authorize(Roles = "Admin,PitchAdmin")]
-    public async Task<IActionResult> Delete(Guid id)
-    {
-        var response = await pitchBookingService.DeletePitchAsync(id);
-        if (response.Success)
-        {
-            TempData["SuccessMessage"] = "Đã xóa sân bóng thành công!";
-        }
-        else
-        {
-            TempData["ErrorMessage"] = response.Message ?? "Xóa sân bóng thất bại.";
-        }
-        return RedirectToAction(nameof(Index));
-    }
-
-
-    // ==========================================================
-    // CÁC HÀM QUẢN LÝ LỊCH ĐẶT CÁ NHÂN (USER)
+    // 3. QUẢN LÝ LỊCH ĐẶT CÁ NHÂN (YÊU CẦU ĐĂNG NHẬP)
     // ==========================================================
 
     [HttpGet]
@@ -253,9 +155,7 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
             return RedirectToAction("Login", "Account");
         }
 
-       
         var response = await pitchBookingService.GetMyBookingsAsync(userId);
-
         var viewModels = mapper.Map<IEnumerable<MyBookingViewModel>>(response.Data);
 
         return View(viewModels);
@@ -269,7 +169,6 @@ public class PitchController(IPitchBookingService pitchBookingService, IMapper m
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         Guid.TryParse(userIdString, out Guid currentUserId);
 
-        // Đã sửa lại đúng tên hàm trong Interface: CancelMyBookingAsync
         var response = await pitchBookingService.CancelMyBookingAsync(id, currentUserId);
 
         if (response.Success)

@@ -10,7 +10,7 @@ namespace QLSanBong.MVC.Controllers;
 
 public class AuthController(IAccountService accountService) : Controller
 {
-    // Bổ sung tham số returnUrl
+    // tham số returnUrl
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
